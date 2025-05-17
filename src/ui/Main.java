@@ -1,7 +1,7 @@
 package ui;
 
-import javax.swing.SwingUtilities;
 import ui.LoginFrame;
+import javax.swing.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -14,12 +14,10 @@ public class Main {
             return;
         }
         
-        // Giriş ekranını başlat
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new LoginFrame().setVisible(true);
-            }
+        // Swing arayüzünü başlat
+        SwingUtilities.invokeLater(() -> {
+            LoginFrame loginFrame = new LoginFrame();
+            loginFrame.setVisible(true);
         });
     }
 }

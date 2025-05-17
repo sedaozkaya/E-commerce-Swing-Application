@@ -18,6 +18,16 @@ public class SellerDashboard extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         
+        // Menü çubuğu ekleme
+        JMenuBar menuBar = new JMenuBar();
+        JMenu sellerMenu = new JMenu("Hesap");
+        JMenuItem logoutItem = new JMenuItem("Çıkış Yap");
+        
+        logoutItem.addActionListener(e -> logout());
+        sellerMenu.add(logoutItem);
+        menuBar.add(sellerMenu);
+        setJMenuBar(menuBar);
+        
         JPanel panel = new JPanel(new GridLayout(7, 2, 10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
@@ -49,6 +59,11 @@ public class SellerDashboard extends JFrame {
         addProductButton = new JButton("Ürün Ekle");
         panel.add(addProductButton);
         
+        // Çıkış butonunu ekleyelim
+        JButton logoutButton = new JButton("Çıkış Yap");
+        logoutButton.addActionListener(e -> logout());
+        panel.add(logoutButton);
+        
         addProductButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -76,6 +91,20 @@ public class SellerDashboard extends JFrame {
         });
         
         add(panel);
+    }
+    
+    private void logout() {
+        int confirm = JOptionPane.showConfirmDialog(
+            this,
+            "Çıkış yapmak istediğinize emin misiniz?",
+            "Çıkış Onayı",
+            JOptionPane.YES_NO_OPTION
+        );
+        
+        if (confirm == JOptionPane.YES_OPTION) {
+            dispose(); // Mevcut pencereyi kapat
+            new LoginFrame().setVisible(true); // Giriş ekranını aç
+        }
     }
     
     private void clearFields() {

@@ -19,6 +19,16 @@ public class UserDashboard extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         
+        // Menü çubuğu ekleme
+        JMenuBar menuBar = new JMenuBar();
+        JMenu userMenu = new JMenu("Hesap");
+        JMenuItem logoutItem = new JMenuItem("Çıkış Yap");
+        
+        logoutItem.addActionListener(e -> logout());
+        userMenu.add(logoutItem);
+        menuBar.add(userMenu);
+        setJMenuBar(menuBar);
+        
         tabbedPane = new JTabbedPane();
         
         // Ürünler sekmesi
@@ -42,6 +52,12 @@ public class UserDashboard extends JFrame {
         JButton addToFavoritesButton = new JButton("Favorilere Ekle");
         productButtonPanel.add(addToCartButton);
         productButtonPanel.add(addToFavoritesButton);
+        
+        // Çıkış butonunu ekleyelim
+        JButton logoutButton = new JButton("Çıkış Yap");
+        logoutButton.addActionListener(e -> logout());
+        productButtonPanel.add(logoutButton);
+        
         productsPanel.add(productButtonPanel, BorderLayout.SOUTH);
         
         tabbedPane.addTab("Ürünler", productsPanel);
@@ -111,6 +127,20 @@ public class UserDashboard extends JFrame {
         filterButton.doClick();
     }
     
+    private void logout() {
+        int confirm = JOptionPane.showConfirmDialog(
+            this,
+            "Çıkış yapmak istediğinize emin misiniz?",
+            "Çıkış Onayı",
+            JOptionPane.YES_NO_OPTION
+        );
+        
+        if (confirm == JOptionPane.YES_OPTION) {
+            dispose(); // Mevcut pencereyi kapat
+            new LoginFrame().setVisible(true); // Giriş ekranını aç
+        }
+    }
+    
     // Ürünleri güzel göstermek için özel renderer
     private class ProductListRenderer extends DefaultListCellRenderer {
         @Override
@@ -123,7 +153,7 @@ public class UserDashboard extends JFrame {
                 setText(String.format("%s - %s - %.2f TL - Stok: %d", 
                     product.getProductName(), 
                     product.getCategory(),
-                    product.getProductWeight() * 100, // Fiyatı ağırlığa göre hesaplıyoruz
+                    product.getProductWeight() * 100,
                     product.getProductStock()));
             }
             
