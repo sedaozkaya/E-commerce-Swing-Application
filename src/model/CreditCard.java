@@ -1,6 +1,7 @@
-//package model;
+package model;
 
 import java.util.Date;
+import model.User;
 
 public class CreditCard {
     private int cardId;

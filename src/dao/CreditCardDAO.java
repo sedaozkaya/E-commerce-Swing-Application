@@ -1,66 +1,66 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package dao;
 
 import model.CreditCard;
 import model.User;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CreditCardDAO {
-    private Connection connection;
-
-    public CreditCardDAO(Connection connection) {
-        this.connection = connection;
-    }
-
-    // Kredi kartı ekle
     public boolean addCreditCard(CreditCard card) {
-        String query = "INSERT INTO credit_cards(user_id, card_number, security_code, exp_date) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, card.getUser().getUserId()); // User ID burada kullanılacak
-            stmt.setString(2, card.getCardNumber());
-            stmt.setString(3, card.getSecurityCode());
-            stmt.setDate(4, new java.sql.Date(card.getExpDate().getTime()));
-            stmt.executeUpdate();
-            return true;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    // Kredi kartını ID ile bul
-    public CreditCard getCreditCardById(int cardId) {
-        String query = "SELECT * FROM credit_cards WHERE card_id = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, cardId);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return new CreditCard(
-                        rs.getString("card_number"),
-                        null,  // User bilgisi başka bir işlemde alınabilir
-                        rs.getString("security_code"),
-                        rs.getDate("exp_date")
-                );
+        String sql = "INSERT INTO credit_cards(card_number, user_id, security_code, exp_date) " +
+                     "VALUES(?, ?, ?, ?)";
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            
+            pstmt.setString(1, card.getCardNumber());
+            pstmt.setInt(2, card.getUser().getUserId());
+            pstmt.setString(3, card.getSecurityCode());
+            pstmt.setDate(4, new java.sql.Date(card.getExpDate().getTime()));
+            
+            int affectedRows = pstmt.executeUpdate();
+            
+            if (affectedRows > 0) {
+                try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        card.setCardId(rs.getInt(1));
+                    }
+                }
+                return true;
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return false;
     }
-
-    // Kredi kartı sil
-    public boolean deleteCreditCard(int cardId) {
-        String query = "DELETE FROM credit_cards WHERE card_id = ?";
-        try (PreparedStatement stmt = connection.prepareStatement(query)) {
-            stmt.setInt(1, cardId);
-            stmt.executeUpdate();
-            return true;
+    
+    public List<CreditCard> getCreditCardsByUser(int userId) {
+        String sql = "SELECT * FROM credit_cards WHERE user_id = ?";
+        List<CreditCard> cards = new ArrayList<>();
+        
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, userId);
+            ResultSet rs = pstmt.executeQuery();
+            
+            while (rs.next()) {
+                User user = new User();
+                user.setUserId(userId);
+                
+                CreditCard card = new CreditCard(
+                    rs.getString("card_number"),
+                    user,
+                    rs.getString("security_code"),
+                    rs.getDate("exp_date")
+                );
+                card.setCardId(rs.getInt("card_id"));
+                cards.add(card);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
+        return cards;
     }
 }
