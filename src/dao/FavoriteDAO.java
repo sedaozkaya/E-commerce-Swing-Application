@@ -14,8 +14,7 @@ public class FavoriteDAO {
             pstmt.setInt(1, userId);
             pstmt.setInt(2, productId);
             
-            int affectedRows = pstmt.executeUpdate();
-            return affectedRows > 0;
+            return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -31,8 +30,7 @@ public class FavoriteDAO {
             pstmt.setInt(1, userId);
             pstmt.setInt(2, productId);
             
-            int affectedRows = pstmt.executeUpdate();
-            return affectedRows > 0;
+            return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }

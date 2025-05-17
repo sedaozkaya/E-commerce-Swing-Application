@@ -63,4 +63,31 @@ public class CreditCardDAO {
         }
         return cards;
     }
+    
+    public CreditCard getCreditCardById(int cardId) {
+        String sql = "SELECT * FROM credit_cards WHERE card_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, cardId);
+            ResultSet rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                User user = new User();
+                user.setUserId(rs.getInt("user_id"));
+                
+                CreditCard card = new CreditCard(
+                    rs.getString("card_number"),
+                    user,
+                    rs.getString("security_code"),
+                    rs.getDate("exp_date")
+                );
+                card.setCardId(rs.getInt("card_id"));
+                return card;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

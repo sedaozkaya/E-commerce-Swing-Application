@@ -1,6 +1,7 @@
 package dao;
 
 import model.Order;
+import model.Product;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +18,7 @@ public class OrderDAO {
             pstmt.setInt(3, order.getCreditCard().getCardId());
             pstmt.setInt(4, order.getQuantity());
             
-            int affectedRows = pstmt.executeUpdate();
-            return affectedRows > 0;
+            return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -26,10 +26,9 @@ public class OrderDAO {
     }
     
     public List<Order> getOrdersByUser(int userId) {
-        String sql = "SELECT o.*, p.*, c.* FROM orders o " +
-                      "JOIN products p ON o.product_id = p.product_id " +
-                      "JOIN credit_cards c ON o.card_id = c.card_id " +
-                      "WHERE o.user_id = ?";
+        String sql = "SELECT o.*, p.* FROM orders o " +
+                     "JOIN products p ON o.product_id = p.product_id " +
+                     "WHERE o.user_id = ? ORDER BY o.order_date DESC";
         List<Order> orders = new ArrayList<>();
         
         try (Connection conn = DatabaseConnection.getConnection();
@@ -39,9 +38,17 @@ public class OrderDAO {
             ResultSet rs = pstmt.executeQuery();
             
             while (rs.next()) {
-                // Burada User, Product ve CreditCard nesneleri oluşturulmalı
-                // Basitlik için şimdilik null bırakıyorum
-                Order order = new Order(null, null, null, rs.getInt("quantity"));
+                Product product = new Product(
+                    rs.getString("product_name"),
+                    rs.getString("product_color"),
+                    rs.getString("category"),
+                    rs.getInt("product_stock"),
+                    rs.getDouble("product_weight"),
+                    rs.getString("description")
+                );
+                product.setProductId(rs.getInt("product_id"));
+                
+                Order order = new Order(null, product, null, rs.getInt("quantity"));
                 order.setOrderId(rs.getInt("order_id"));
                 order.setOrderDate(rs.getTimestamp("order_date"));
                 orders.add(order);

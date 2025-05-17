@@ -90,9 +90,34 @@ public class ProductDAO {
         return products;
     }
     
+    public Product getProductById(int productId) {
+        String sql = "SELECT * FROM products WHERE product_id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, productId);
+            ResultSet rs = pstmt.executeQuery();
+            
+            if (rs.next()) {
+                Product product = new Product(
+                    rs.getString("product_name"),
+                    rs.getString("product_color"),
+                    rs.getString("category"),
+                    rs.getInt("product_stock"),
+                    rs.getDouble("product_weight"),
+                    rs.getString("description")
+                );
+                product.setProductId(rs.getInt("product_id"));
+                return product;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
     public boolean updateProductStock(int productId, int quantity) {
         String sql = "UPDATE products SET product_stock = product_stock - ? WHERE product_id = ? AND product_stock >= ?";
-        
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
@@ -100,8 +125,7 @@ public class ProductDAO {
             pstmt.setInt(2, productId);
             pstmt.setInt(3, quantity);
             
-            int affectedRows = pstmt.executeUpdate();
-            return affectedRows > 0;
+            return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
         }

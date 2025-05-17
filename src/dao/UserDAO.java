@@ -2,9 +2,7 @@ package dao;
 
 import model.User;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 public class UserDAO {
     public boolean addUser(User user) {
